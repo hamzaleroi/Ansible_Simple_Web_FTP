@@ -1,0 +1,12 @@
+---
+- name: configure ftp server
+  hosts:
+    all
+  gather_facts: no
+  tasks:
+    - name: ensure vsftpd is installed
+      become: yes
+      apt:
+        # update_cache: yes
+        name: vsftpd
+        state: present
