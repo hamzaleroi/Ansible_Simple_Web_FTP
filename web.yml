@@ -3,9 +3,32 @@
   hosts:
     all
   become: yes
+  gather_facts: no
   tasks:
     - name: install apache on the machine
       apt:
         update_cache: yes
         name: apache2
         state: latest
+    - name: creating a link for the apache folder
+      file:
+        src: /etc/apache2/
+        dest: /apache
+        state: link
+    - name: copying the webpage to the destination
+      copy:
+        src: website/index.html
+        dest: /var/www/html
+      notify:
+        - restart apache2
+    - name: copying the config to the 
+      template:
+        src: ./apache2.conf.j2
+        dest: /apache
+      notify:
+        - restart apache2
+  handlers:
+    - name: restart apache2
+      service:
+        name: apache2
+        state: restarted
