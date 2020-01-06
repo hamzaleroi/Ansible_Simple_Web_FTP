@@ -3,10 +3,55 @@
   hosts:
     all
   gather_facts: no
+  become: yes
   tasks:
     - name: ensure vsftpd is installed
-      become: yes
       apt:
-        # update_cache: yes
         name: vsftpd
         state: present
+      notify:
+        - restart vsftpd
+    - name: Allow new incoming packets on TCP port 21 (FTP)
+      iptables:
+        chain: INPUT
+        protocol: tcp
+        destination_port: 21
+        ctstate: NEW
+        match: tcp
+        jump: ACCEPT
+        comment: Accept FTP connections.
+    - name: allow ssh on the firewall
+      ufw:
+        rule: allow
+        port: ssh
+      notify:
+        - enable firewall
+    - name: allow ftp on the firewall
+      ufw:
+        rule: allow
+        port: ftp
+      notify:
+        - enable firewall
+    - name: configure ftp server
+      vars:
+        anonymous_enabled: yes
+      template:
+        src: "./vsftpd.conf.j2"
+        dest: "/etc/vsftpd.conf"
+      notify:
+        - restart vsftpd
+    - name: creating the directory for anonymous users
+      file: 
+        path: "/var/ftp/"
+        state: directory
+        owner: "root"
+        group: "root"
+
+  handlers:
+    - name: restart vsftpd
+      service:
+        name: vsftpd
+        state: restarted
+    - name: enable firewall
+      ufw:
+        state: enabled
