@@ -1,0 +1,11 @@
+---
+- name: configure apache server
+  hosts:
+    all
+  become: yes
+  tasks:
+    - name: install apache on the machine
+      apt:
+        update_cache: yes
+        name: apache2
+        state: latest

@@ -8,7 +8,8 @@
     - name: ensure vsftpd is installed
       apt:
         name: vsftpd
-        state: present
+        state: latest
+        update_cache: yes
       notify:
         - restart vsftpd
     - name: Allow new incoming packets on TCP port 21 (FTP)
