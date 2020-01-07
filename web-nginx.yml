@@ -1,0 +1,42 @@
+---
+- name: configuring nginx web server
+  hosts: all
+  gather_facts: no
+  become: yes
+  tasks:
+    - name: installing nginx package
+      apt:
+        name: nginx
+        state: latest
+    - name: creating a link for the nginx folder
+      file:
+        src: /etc/nginx/
+        dest: /nginx
+        state: link
+    - name: ensuring we have the folder /var/www/nginx available
+      file:
+        path: /var/www/nginx
+        state: directory
+    - name: copying the webpage to the destination
+      copy:
+        src: website/index.html
+        dest: /var/www/nginx
+      notify:
+        - restart nginx
+    - name: copying the config to the nginx folder
+      template:
+        src: ./nginx.conf.j2
+        dest: /nginx/nginx.conf
+      notify:
+        - restart nginx
+    - name: copying the site-available config
+      template:
+        src: ./default.j2
+        dest: /nginx/sites-available/default
+      notify:
+        - restart nginx
+  handlers:
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted

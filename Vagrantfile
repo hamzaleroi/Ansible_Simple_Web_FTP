@@ -7,10 +7,16 @@ Vagrant.configure("2") do |config|
   #     ansible.playbook = "ftp.yml"
   #   end
   # end
-  config.vm.define "web-server" do |web|
-    web.vm.network "private_network", ip: "192.168.5.7"
+  # config.vm.define "web-server" do |web|
+  #   web.vm.network "private_network", ip: "192.168.5.7"
+  #   web.vm.provision "ansible" do |ansible|
+  #     ansible.playbook = "web.yml"
+  #   end
+  # end
+  config.vm.define "nginx-web-server" do |web|
+    web.vm.network "private_network", ip: "192.168.5.8"
     web.vm.provision "ansible" do |ansible|
-      ansible.playbook = "web.yml"
+      ansible.playbook = "web-nginx.yml"
     end
   end
   config.vm.provider "virtualbox" do |vb|
